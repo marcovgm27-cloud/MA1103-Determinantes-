@@ -1,183 +1,170 @@
-/* Contenido docente. Fórmulas en TeX; textos en Latin Modern en la interfaz. */
+/* Banco parametrizado: una semilla nueva por recorrido, conservada al recargar. */
 window.DeterminantesCourse = (() => {
   'use strict';
-  const escape = (value) => String(value).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
-  const math = (strings, ...values) => `<span class="math inline" data-tex="${escape(String.raw(strings,...values))}"></span>`;
-  const matrix = rows => `\\begin{pmatrix}${rows.map(row=>row.join('&')).join('\\\\')}\\end{pmatrix}`;
-  const determinant = rows => `\\begin{vmatrix}${rows.map(row=>row.join('&')).join('\\\\')}\\end{vmatrix}`;
-  const A3 = [[2,-1,1],[1,3,-2],[3,1,2]], b3 = [8,-7,11];
-  const A4 = [[1,2,-1,1],[2,5,0,1],[-1,0,6,-2],[3,7,1,6]], b4 = [9,15,-13,34];
-  const B4 = [[2,1,0,-1],[4,3,1,0],[-2,0,2,3],[6,4,2,1]];
-  const system3 = String.raw`\begin{cases}2x-y+z=8\\x+3y-2z=-7\\3x+y+2z=11\end{cases}`;
-  const system4 = String.raw`\begin{cases}x+2y-z+w=9\\2x+5y+w=15\\-x+6z-2w=-13\\3x+7y+z+6w=34\end{cases}`;
-  const q = (id,prompt,options,answer,explanation,hints=[],tex='') => ({id,prompt,options,answer,explanation,hints,tex});
-  const videos = [
-    {id:'14DCgJjfCNkerH56JgdkdBQpZnKKtaTvO', title:'Repaso de las propiedades de los determinantes', preparation:'Identifica qué propiedades conservan el determinante y cuáles modifican su signo o introducen un factor.'},
-    {id:'1Eg1h-VmaM8QdprLMkUVFB7wVXCtPoKOy', title:'Demostraciones usando las propiedades', preparation:'Construye argumentos a partir de la linealidad, la alternancia y la dependencia entre filas. Evita desarrollar por cofactores cuando una propiedad resuelve el problema.'},
-    {id:'1NT4MSBQH31zRYQIAB51HOzY6nXxmlzgb', title:'Un determinante por dos caminos', preparation:'Compara el cálculo mediante linealidad con el cálculo mediante operaciones elementales. Los dos procedimientos deben producir el mismo valor.'},
-    {id:'1aLG4Bw7X_9_xvtZ_eqDrDvTEFQLQI6sw', title:'Operaciones entre filas y columnas', preparation:'Combina operaciones entre filas y columnas para crear ceros. Lleva un registro del efecto de cada transformación sobre el determinante.'},
-    {id:'1yKDycHv7-faiBqTNcs6UhuW0rL8onpGF', title:'Regla de Cramer', preparation:'Construye los determinantes de los sistemas de tres y cuatro incógnitas. Sustituye una sola columna cada vez y comprueba que el determinante principal no sea cero.'}
-  ];
-  const quizzes = {
-    1:[
-      q('p1',`Una matriz tiene tres filas y cuatro columnas. ¿Cuál es su orden?`,[math`3\times4`,math`4\times3`,math`3\times3`],0,'El orden se escribe filas por columnas: '+math`3\times4`+'.'),
-      q('p2','¿Cuál de estas matrices es triangular superior?', [math`${matrix([[1,2,3],[0,4,5],[0,0,6]])}`,math`${matrix([[1,0,0],[2,4,0],[3,5,6]])}`,math`${matrix([[1,2,0],[3,4,5],[0,1,6]])}`],0,'Todas las entradas debajo de la diagonal principal deben ser cero.'),
-      q('p3','¿Qué efecto tiene intercambiar dos filas sobre el determinante?',['No cambia','Cambia de signo','Siempre se hace cero'],1,'Un intercambio multiplica el determinante por '+math`-1`+'.'),
-      q('p4','Una matriz cuadrada tiene dos filas iguales. ¿Cuánto vale su determinante?',[math`1`,math`0`,'Depende del orden'],1,'Las filas son linealmente dependientes; por tanto, el determinante es cero.')
-    ],
-    3:[
-      q('a11','Determina el valor y selecciona una justificación que use propiedades.',[
-        math`\det A=0`+': la cuarta fila es la suma de la primera y la tercera.',
-        math`\det A=0`+': contiene entradas nulas.',
-        math`\det A=1`+': la primera entrada es uno.'
-      ],0,'La relación '+math`F_4=F_1+F_3`+' implica dependencia lineal; por eso '+math`\det A=0`+'.',[
-        'Compara la cuarta fila con las otras filas.',
-        'Suma la primera y la tercera fila, entrada por entrada.',
-        math`F_4=F_1+F_3`+'. Al aplicar '+math`F_4\leftarrow F_4-F_1-F_3`+' aparece una fila nula; el determinante es cero.'
-      ],'A='+matrix([[1,2,0,-1],[2,1,3,0],[0,-1,2,4],[1,1,2,3]])),
-      q('a12',`Si ${math`A\in\mathbb R^{3\times3}`} y ${math`\det A=-2`}, calcula ${math`\det(2A)`}.`,null,-16,'Se multiplica cada fila por dos: '+math`\det(2A)=2^3\det A=8(-2)=-16`+'.',[
-        'Multiplicar toda la matriz afecta a cada fila.',
-        'El exponente del escalar coincide con el orden de la matriz.',
-        math`\det(kA)=k^n\det A`+'. Aquí '+math`2^3(-2)=-16`+'.'
-      ]),
-      q('a13',`Una matriz ${math`4\times4`} tiene determinante ${math`5`}. Se intercambian dos filas y se multiplica una sola columna por ${math`-3`}. ¿Cuál es el nuevo determinante?`,null,15,
-        'El intercambio aporta '+math`-1`+' y el escalamiento de una columna aporta '+math`-3`+': '+math`(-1)(-3)5=15`+'.',[
-          'Controla por separado el efecto de las dos operaciones.',
-          'Solo se escala una columna; no eleves el factor al orden de la matriz.',
-          math`\det B=(-1)(-3)\det A=15`+'.'
-        ])
-    ],
-    5:[
-      q('b11',`Sean ${math`u,v,w\in\mathbb R^3`} filas de una matriz con determinante ${math`\delta`}. Al sustituirlas por ${math`u+v,\ v+w,\ w+u`}, el nuevo determinante es ${math`2\delta`}. ¿Qué argumento lo demuestra?`,[
-        'La linealidad produce ocho términos: seis tienen filas repetidas y los otros dos son permutaciones cíclicas de signo positivo.',
-        'Cada fila tiene dos sumandos; por ello se multiplica automáticamente el determinante por ocho.',
-        'Sumar vectores a todas las filas conserva siempre el determinante.'
-      ],0,'Solo sobreviven '+math`\det(u,v,w)`+' y '+math`\det(v,w,u)`+'. La permutación cíclica usa dos intercambios; ambos términos valen '+math`\delta`+'.',[
-        'Expande por linealidad en cada fila, sin usar cofactores.',
-        'Descarta todos los términos que contienen dos filas iguales.',
-        'Sobreviven exactamente dos términos de signo positivo: su suma es '+math`2\delta`+'.'
-      ]),
-      q('b12','Elige la demostración por propiedades de que este determinante es cero.',[
-        math`F_4\leftarrow F_4-F_1-F_2`+' conserva el determinante y produce una fila nula.',
-        'La presencia de letras obliga a que el determinante sea cero.',
-        'Todas las matrices de orden cuatro tienen filas dependientes.'
-      ],0,'La operación propuesta produce una fila nula, pues '+math`F_4=F_1+F_2`+'. Esta justificación funciona para cualquier valor de los parámetros.',[
-        'Busca una relación lineal que no dependa de valores particulares.',
-        'Compara la cuarta fila con la suma de las dos primeras.',
-        math`F_4-F_1-F_2=0`+'. La suma de múltiplos de otras filas conserva el determinante.'
-      ],determinant([['a','b','c','d'],['e','f','g','h'],['p','q','r','s'],['a+e','b+f','c+g','d+h']])),
-      q('b13',`Sea ${math`A\in\mathbb R^{4\times4}`} con ${math`\det A=3`}. Se aplica ${math`C_1\leftarrow C_1+2C_3`}, luego un intercambio de filas y después ${math`F_2\leftarrow-2F_2`}. Determina ${math`\det B`}.`,null,6,
-        'La suma de columnas conserva el valor; el intercambio y el escalamiento aportan '+math`(-1)(-2)`+'. Por tanto, '+math`\det B=6`+'.',[
-          'Escribe un factor por cada operación y justifica cuándo vale uno.',
-          'Sumar un múltiplo de una columna distinta conserva el determinante.',
-          math`\det B=1\cdot(-1)\cdot(-2)\cdot3=6`+'.'
-        ])
-    ],
-    7:[
-      q('d31','Para calcular por linealidad, se descompone la primera fila en dos sumandos. ¿Qué igualdad es válida?',[
-        math`\det A=\begin{vmatrix}2&-1&0\\1&4&-2\\3&2&1\end{vmatrix}+\begin{vmatrix}0&0&3\\1&4&-2\\3&2&1\end{vmatrix}`,
-        math`\det A=\det\begin{pmatrix}2&0&0\\0&4&0\\0&0&1\end{pmatrix}`,
-        'La linealidad permite separar todas las filas sumando solo dos determinantes.'
-      ],0,'Se separa una sola fila y se mantienen idénticas las demás. Los dos determinantes valen '+math`23`+' y '+math`-30`+'.',[
-        'La linealidad se aplica a una fila o columna cada vez.',
-        math`(2,-1,3)=(2,-1,0)+(0,0,3)`+'.',
-        'Al expandir en esa fila, las otras dos filas deben conservarse en ambos términos.'
-      ],'A='+matrix([[2,-1,3],[1,4,-2],[3,2,1]])),
-      q('d32','Calcula el determinante anterior usando la descomposición por linealidad. Desarrolla el procedimiento en tu cuaderno.',null,-7,
-        math`\det A=23+(-30)=-7`+'. La suma proviene de separar únicamente la primera fila.',[
-          'Calcula ambos determinantes de la descomposición.',
-          'El segundo determinante se simplifica expandiendo por su primera fila.',
-          math`\det A=23-30=-7`+'.'
-        ],determinant([[2,-1,3],[1,4,-2],[3,2,1]])),
-      q('d33','Vuelve a calcular el mismo determinante mediante operaciones. Intercambia primero las dos primeras filas, crea ceros y controla el cambio de signo.',null,-7,
-        'Tras el intercambio, aplica '+math`F_2\leftarrow F_2-2F_1`+' y '+math`F_3\leftarrow F_3-3F_1`+'. Queda un bloque '+math`\begin{pmatrix}-9&7\\-10&7\end{pmatrix}`+' de determinante '+math`7`+'. El intercambio inicial da '+math`\det A=-7`+'.',[
-          'El pivote uno permite evitar fracciones al crear los primeros ceros.',
-          'Después del intercambio y las dos sumas de filas, el bloque inferior tiene determinante siete.',
-          'El determinante transformado es siete; deshaz el cambio de signo del intercambio para obtener '+math`-7`+'.'
-        ],determinant([[2,-1,3],[1,4,-2],[3,2,1]]))
-    ],
-    9:[
-      q('d41','Selecciona una primera operación de columna que cree un cero en la primera fila sin cambiar el determinante.',[
-        math`C_2\leftarrow C_2-2C_1`,math`C_1\leftarrow2C_1`,math`C_2\leftrightarrow C_4`
-      ],0,'La segunda columna pasa a ser '+math`(0,1,2,1)^T`+'. Esta operación crea un cero en la primera fila y conserva el determinante. Después puedes combinar otras columnas para anular las entradas restantes de esa fila.',[
-        'Resta a la segunda columna un múltiplo de la primera.',
-        'La entrada superior de la segunda columna es el doble de la primera.',
-        math`C_2\leftarrow C_2-2C_1`+' conserva el determinante. La nueva columna es '+math`(0,1,2,1)^T`+'.'
-      ],'A='+matrix(A4)),
-      q('d42','Calcula este determinante combinando filas y columnas. Empieza por las columnas para convertir la primera fila en una fila con un único elemento no nulo.',null,2,
-        'Aplica '+math`C_2\leftarrow C_2-2C_1`+', '+math`C_3\leftarrow C_3+C_1`+' y '+math`C_4\leftarrow C_4-C_1`+'. El menor restante es '+math`\begin{vmatrix}1&2&-1\\2&5&-1\\1&4&3\end{vmatrix}=2`+'. Todas las sumas de columnas conservan el determinante.',[
-          'Crea ceros en las posiciones segunda, tercera y cuarta de la primera fila.',
-          'Después, en el menor de orden tres, resta dos veces su primera fila a la segunda y una vez a la tercera.',
-          'El bloque final es '+math`\begin{vmatrix}1&1\\2&4\end{vmatrix}=2`+'.'
-        ],determinant(A4)),
-      q('d43','Calcula el siguiente determinante de orden cuatro. Utiliza sumas de filas para triangularizar y registra los pivotes.',null,4,
-        'Aplica '+math`F_2\leftarrow F_2-2F_1`+', '+math`F_3\leftarrow F_3+F_1`+' y '+math`F_4\leftarrow F_4-3F_1`+'. Luego resta la nueva segunda fila a la tercera y a la cuarta, y la tercera a la cuarta. La diagonal es '+math`2,1,1,2`+'; su producto es '+math`4`+'.',[
-          'La primera columna se reduce con múltiplos enteros de la primera fila.',
-          'Los tres pivotes iniciales pueden elegirse como '+math`2,1,1`+'.',
-          'Sin escalamientos ni intercambios, la diagonal triangular final es '+math`2,1,1,2`+' y el determinante es '+math`4`+'.'
-        ],determinant(B4))
-    ],
-    11: [],
-    12:[
-      q('r1',`Propiedades. Una matriz ${math`4\times4`} tiene determinante ${math`-2`}. Calcula ${math`\det B`} si ${math`B`} se obtiene intercambiando dos columnas de ${math`3A`}.`,null,162,
-        math`\det B=-3^4\det A=-81(-2)=162`+'.',[
-          'Multiplicar toda la matriz no equivale a multiplicar una sola columna.',
-          'El orden es cuatro; el factor del escalamiento es '+math`3^4`+'.',
-          'El intercambio cambia el signo: '+math`-81(-2)=162`+'.'
-        ]),
-      q('r2','Operaciones combinadas. Calcula eficientemente el siguiente determinante.',null,-4,
-        'Intercambia las dos primeras filas para recuperar la matriz trabajada en la actividad de operaciones. Su determinante es cuatro; el intercambio invierte su signo.',[
-          'Compara las dos primeras filas con la matriz de la actividad anterior.',
-          'Un único intercambio recupera una matriz de determinante cuatro.',
-          'Al deshacer ese intercambio se obtiene '+math`-4`+'.'
-        ],determinant([B4[1],B4[0],B4[2],B4[3]])),
-      {...q('r3','Cramer. Resuelve el sistema de cuatro incógnitas. Calcula los cinco determinantes en tu cuaderno antes de introducir la solución.',null,[2,-1,1,3],
-        math`D=4,\quad D_x=8,\quad D_y=-4,\quad D_z=4,\quad D_w=12`+'. Los cocientes de Cramer dan '+math`(x,y,z,w)=(2,-1,1,3)`+'.',[
-          'Construye la matriz de coeficientes en el orden de variables indicado.',
-          'El determinante principal es '+math`4`+'. Sustituye una sola columna en cada determinante auxiliar.',
-          math`(D_x,D_y,D_z,D_w)=(8,-4,4,12)`+'. Divide cada valor por '+math`D=4`+'.'
-        ],String.raw`\begin{cases}2x+y-w=0\\4x+3y+z=6\\-2x+2z+3w=7\\6x+4y+2z+w=13\end{cases}`), variables:['x','y','z','w']}
-    ]
-  };
-  function cramerQuestions(A,b,values,solution,prefix,system) {
-    const variables=['x','y','z','w'].slice(0,A.length), order=A.length;
-    const determinantQuestions=[{matrix:A,symbol:'D',answer:values[0]},...variables.map((v,k)=>({matrix:A.map((r,i)=>r.map((x,j)=>j===k?b[i]:x)),symbol:`D_${v}`,answer:values[k+1]}))];
-    const items=determinantQuestions.map((item,k)=>({
-      ...q(`${prefix}d${k}`,k===0?`Sistema ${math`${order}\times${order}`}: construye el determinante principal ${math`D`} y calcula su valor.`:`Sistema ${math`${order}\times${order}`}: construye ${math`${item.symbol}`} sustituyendo solo la columna de ${math`${variables[k-1]}`} y calcula su valor.`,null,item.answer,
-        k===0?`${math`D=${item.answer}\ne0`}. El sistema tiene solución única.`:`${math`${item.symbol}=${item.answer}`}. Las demás columnas permanecen iguales a las de la matriz de coeficientes.`,[
-          k===0?'Copia los coeficientes respetando el orden de las variables.':'La columna sustituida debe ser exactamente el vector de términos independientes.',
-          k===0?'Triangulariza sin perder los factores de cada operación.':`Conserva las demás columnas y usa el orden de ecuaciones del sistema.`,
-          math`${item.symbol}=${item.answer}`+'. Revisa la construcción y las operaciones antes de volver a introducir los datos.'
-        ]), matrix:item.matrix, context:system, group:`Sistema de ${order} incógnitas`
-    }));
-    items.push({...q(`${prefix}sol`,'Calcula las incógnitas mediante los cocientes de Cramer.',null,solution,
-      variables.map((v,k)=>math`${v}=\frac{D_${v}}{D}=\frac{${values[k+1]}}{${values[0]}}=${solution[k]}`).join('; ')+'. Comprueba la solución sustituyendo en todas las ecuaciones.',[
-        'Divide cada determinante auxiliar por el determinante principal.',
-        math`D=${values[0]}`+'. Usa los determinantes que ya verificaste.',
-        math`${matrix(solution.map(v=>[v]))}`+' es el vector solución.'
-      ]),variables,context:system,group:`Sistema de ${order} incógnitas`});
-    return items;
+  const escape=value=>String(value).replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+  const math=(strings,...values)=>`<span class="math inline" data-tex="${escape(String.raw(strings,...values))}"></span>`;
+  const matrix=rows=>`\\begin{pmatrix}${rows.map(r=>r.join('&')).join('\\\\')}\\end{pmatrix}`;
+  const determinant=rows=>`\\begin{vmatrix}${rows.map(r=>r.join('&')).join('\\\\')}\\end{vmatrix}`;
+  const display=tex=>`<div class="math" data-tex="${escape(tex)}"></div>`;
+  // Exact for the small integer matrices used by this course (orders at most four).
+  function det(A) {if(A.length===1)return A[0][0];return A[0].reduce((sum,v,j)=>sum+(j%2?-1:1)*v*det(A.slice(1).map(row=>row.filter((_,k)=>k!==j))),0);}
+  function randomSeed() {return Array.from(crypto.getRandomValues(new Uint32Array(4)),n=>n.toString(16).padStart(8,'0')).join('');}
+  function createCourse(seed) {
+    let hash=2166136261;for(const c of seed)hash=Math.imul(hash^c.charCodeAt(0),16777619);
+    const random=()=>{hash+=0x6D2B79F5;let t=hash;t=Math.imul(t^(t>>>15),t|1);t^=t+Math.imul(t^(t>>>7),t|61);return ((t^(t>>>14))>>>0)/4294967296;};
+    const integer=(min,max)=>min+Math.floor(random()*(max-min+1));
+    const pick=items=>items[integer(0,items.length-1)];
+    const shuffle=items=>{for(let i=items.length-1;i>0;i--){const j=integer(0,i);[items[i],items[j]]=[items[j],items[i]];}return items;};
+    const q=(id,prompt,options,answer,explanation,hints,tex='',extra={})=>({id,prompt,options,answer,explanation,hints,tex,...extra});
+    function choice(id,prompt,options,explanation,hints,tex='',extra={}) {
+      const shuffled=shuffle(options.map((text,i)=>({text,correct:i===0})));
+      return q(id,prompt,shuffled.map(o=>o.text),shuffled.findIndex(o=>o.correct),explanation,hints,tex,extra);
+    }
+    const prod=(A,B)=>A.map(row=>B[0].map((_,j)=>row.reduce((s,v,k)=>s+v*B[k][j],0)));
+    function triangularFamily(n) {
+      const U=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>j<i?0:j===i?(i===0?1:pick([-2,-1,1,2,3])):pick([-2,-1,1,2,3])));
+      const L=Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>j>i?0:j===i?1:pick([-2,-1,1,2])));
+      return {A:prod(L,U),U,L,D:U.reduce((d,r,i)=>d*r[i],1)};
+    }
+    const k=integer(2,4),original=pick([-6,-4,-2,2,4,6]),n=pick([3,4]),newDet=original*k**n;
+    const rowK=pick([-3,-2,2,3]),rowD=pick([-6,-4,4,6]),delta=pick([-7,-5,5,7]);
+    const family3=triangularFamily(3),family4=triangularFamily(4),other4=triangularFamily(4),other3=triangularFamily(3);
+    let A;do {A=Array.from({length:3},()=>Array.from({length:3},()=>integer(-3,4)));}while(det(A)===0||A[0].some(v=>v===0)||(()=>{const L=A.map(r=>r.slice()),R=A.map(r=>r.slice());L[0][2]=0;R[0][0]=R[0][1]=0;return det(L)===0||det(R)===0||det(L)*det(R)===det(A);})());
+    const left=A.map(r=>r.slice()),right=A.map(r=>r.slice());left[0][2]=0;right[0][0]=right[0][1]=0;
+    const solution3=Array.from({length:3},()=>pick([-3,-2,-1,1,2,3]));
+    const solution4=Array.from({length:4},()=>pick([-3,-2,-1,1,2,3]));
+    const rhs=(M,x)=>M.map(r=>r.reduce((s,v,j)=>s+v*x[j],0));
+    const system=(M,b)=>`\\begin{cases}${M.map((row,i)=>row.map((v,j)=>v===0?'':`${v>0&&j>0?'+':''}${v===1?'':v===-1?'-':v}${['x','y','z','w'][j]}`).join('').replace(/^\+/,'')+'='+b[i]).join('\\\\')}\\end{cases}`;
+    const videos=[
+      {id:'14DCgJjfCNkerH56JgdkdBQpZnKKtaTvO',title:'Repaso de las propiedades de los determinantes',preparation:'Repasa filas proporcionales, cambios de signo y factores escalares.'},
+      {id:'1Eg1h-VmaM8QdprLMkUVFB7wVXCtPoKOy',title:'Demostraciones usando las propiedades',preparation:'Justifica igualdades de determinantes directamente con sus entradas y una propiedad cada vez, sin introducir vectores.'},
+      {id:'1NT4MSBQH31zRYQIAB51HOzY6nXxmlzgb',title:'Un determinante por dos caminos',preparation:'Compara linealidad y operaciones. Muestra cada operación elemental por separado.'},
+      {id:'1aLG4Bw7X_9_xvtZ_eqDrDvTEFQLQI6sw',title:'Operaciones entre filas y columnas',preparation:'Combina operaciones controlando sus factores y signos.'},
+      {id:'1yKDycHv7-faiBqTNcs6UhuW0rL8onpGF',title:'Regla de Cramer',preparation:'Construye los determinantes auxiliares sustituyendo una sola columna cada vez.'}
+    ];
+    const rows=integer(3,5),cols=pick([3,4,5,6].filter(v=>v!==rows&&v!==rows+1)),diag=[integer(1,4),integer(2,5),integer(2,5)],a=integer(1,3),b=integer(1,3),c=integer(1,3),t=integer(2,4);
+    const proportional=[[a,b,c],[t*a,t*b,t*c],[integer(1,4),-integer(1,3),integer(2,5)]];
+    const hintsProp=['Distingue el determinante original del transformado.','Escribe primero la igualdad de la propiedad; después despeja la cantidad solicitada.','Si una fila se multiplica por un factor, el determinante nuevo lleva ese factor. Al despejar el original se usa el recíproco.'];
+    const quizzes={
+      1:[
+        choice('p1',`Una matriz tiene ${rows} filas y ${cols} columnas. ¿Cuál es su orden?`,[math`${rows}\times${cols}`,math`${cols}\times${rows+1}`,math`${rows+1}\times${cols}`,math`${cols}\times${rows+1+cols}`],'Se escribe primero el número de filas y después el de columnas: '+math`${rows}\times${cols}`+'.',['Cuenta primero las filas.','El orden se escribe filas por columnas.','El orden es '+math`${rows}\times${cols}`+'.']),
+        choice('p2','¿Cuál es triangular superior?',[
+          math`${matrix([[diag[0],a,b],[0,diag[1],c],[0,0,diag[2]]])}`,
+          math`${matrix([[diag[0],a,b],[c,diag[1],0],[0,0,diag[2]]])}`,
+          math`${matrix([[diag[0],0,b],[0,diag[1],c],[a,0,diag[2]]])}`
+        ],'Todas las entradas debajo de la diagonal principal deben ser cero.',['Observa solo las entradas debajo de la diagonal.','Las posiciones segunda fila/primera columna, tercera fila/primera columna y tercera fila/segunda columna deben ser cero.','La matriz triangular superior tiene las tres posiciones inferiores nulas.']),
+        choice('p3',`Si ${math`\det A=${delta}`} y se intercambian dos filas, ¿cuál es el nuevo determinante?`,[math`${-delta}`,math`${delta}`,math`${2*delta}`,math`${-2*delta}`],'Un intercambio cambia el signo: '+math`\det B=-\det A=${-delta}`+'.',hintsProp),
+        choice('p4',`Una fila es ${t} veces otra fila distinta. ¿Qué ocurre con el determinante?`,['Es cero.','Queda multiplicado por '+math`${t}`+'.','Queda dividido por '+math`${t}`+'.','Cambia de signo si '+math`${t}`+' es par.'],'Dos filas proporcionales implican determinante cero.',['Comprueba si las filas aportan información independiente.','Extraer el factor deja dos filas iguales.','Dos filas iguales tienen determinante cero.'])
+      ],
+      3:[
+        choice('a11','Sin expandir, elige el valor del determinante y una justificación válida.',[
+          math`0`+': se extrae el factor '+math`${t}`+' de la segunda fila y quedan dos filas iguales.',
+          math`${t}`+': se extrae el factor de la segunda fila y las filas iguales aportan uno.',
+          math`0`+': las filas proporcionales pueden intercambiarse sin cambiar el signo.',
+          math`${-t}`+': las filas proporcionales se cancelan y aportan el factor con signo opuesto.'
+        ],'La segunda fila es '+math`${t}`+' veces la primera. Al extraer ese factor quedan dos filas iguales; por tanto el determinante es cero.',[
+          'Compara las entradas de las dos primeras filas.',
+          'Extrae el factor común de la segunda fila y observa qué sucede.',
+          math`\det A=${t}\cdot0=0`+'. El factor no se convierte en el determinante final.'
+        ],'A='+matrix(proportional),{checkMatrix:proportional,checkDet:0}),
+        q('a12',`Sea ${math`B=${k}A`}, donde ${math`A`} es de orden ${math`${n}\times${n}`} y ${math`\det B=${newDet}`}. Calcula el determinante ORIGINAL ${math`\det A`}.`,null,original,
+          math`\det B=${k}^{${n}}\det A`+'. Por tanto, '+math`\det A=\frac{1}{${k}^{${n}}}\det B=${original}`+'. El recíproco aparece al despejar el original, no al calcular el nuevo.',[
+            'Se multiplican todas las filas; primero relaciona los dos determinantes.',
+            math`\det B=${k}^{${n}}\det A`+'. La pregunta pide despejar '+math`\det A`+'.',
+            math`\det A=\frac{${newDet}}{${k**n}}=${original}`+'.'
+          ],'',{scalarCheck:{order:n,k,original,newDet}}),
+        q('a13',`Una sola fila de ${math`A`} se multiplica por ${math`${rowK}`} para obtener ${math`B`}. Si ${math`\det B=${rowK*rowD}`}, calcula ${math`\det A`}.`,null,rowD,
+          math`\det B=${rowK}\det A`+', luego '+math`\det A=\frac{1}{${rowK}}\det B=${rowD}`+'. Solo se escala una fila; no se eleva el factor al orden.',[
+            'Distingue una sola fila de toda la matriz.',
+            'El determinante nuevo es el escalar por el original; ahora debes despejar el original.',
+            math`\det A=\frac{${rowK*rowD}}{${rowK}}=${rowD}`+'.'
+          ],'',{scalarCheck:{order:1,k:rowK,original:rowD,newDet:rowK*rowD}})
+      ],
+      5:[
+        choice('b11',`Sabiendo que ${math`\begin{vmatrix}a&b&c\\d&e&f\\g&h&i\end{vmatrix}=${delta}`}, justifica el valor del siguiente determinante.`,[
+          math`${-delta}`+': se intercambian dos filas una sola vez.',
+          math`${delta}`+': todo cambio de posición de filas conserva el determinante.',
+          math`${-delta}`+': transponer una matriz invierte el signo.',
+          math`${delta}`+': un intercambio equivale a multiplicar dos filas por menos uno.'
+        ],'Las dos primeras filas están intercambiadas: '+math`\det B=-\det A=${-delta}`+'. No se necesita introducir vectores ni desarrollar por cofactores.',[
+          'Compara el orden de las filas de los dos determinantes.',
+          'Solo se ha realizado un intercambio de dos filas.',
+          'Un intercambio aporta el factor '+math`-1`+'.'
+        ],determinant([['d','e','f'],['a','b','c'],['g','h','i']])),
+        choice('b12','¿Qué única operación de fila deja dos filas proporcionales y demuestra que el determinante es cero?',[
+          math`F_3\leftarrow F_3-F_1`,math`F_3\leftarrow F_3+F_1`,math`F_1\leftarrow F_1-F_2`,math`F_2\leftarrow F_2-F_3`
+        ],'Se realiza una sola operación, que conserva el determinante:'+display(String.raw`\begin{vmatrix}a&b&c\\d&e&f\\a+${t}d&b+${t}e&c+${t}f\end{vmatrix}\xrightarrow{F_3\leftarrow F_3-F_1}\begin{vmatrix}a&b&c\\d&e&f\\${t}d&${t}e&${t}f\end{vmatrix}=0`)+ 'La tercera fila queda como '+math`${t}`+' veces la segunda. No se aplican tres operaciones simultáneas.',[
+          'Compara la tercera fila con la primera y la segunda.',
+          'Resta únicamente la primera fila a la tercera.',
+          'La tercera fila queda como múltiplo de la segunda; el determinante es cero.'
+        ],determinant([['a','b','c'],['d','e','f'],[`a+${t}d`,`b+${t}e`,`c+${t}f`]])),
+        q('b13',`Al multiplicar una sola columna de ${math`A`} por ${math`${k}`} se obtiene ${math`B`}, con ${math`\det B=${k*delta}`}. Determina el original ${math`\det A`} y justifica la relación en tu cuaderno.`,null,delta,
+          math`\det B=${k}\det A`+'. Al recuperar el original se usa el recíproco: '+math`\det A=\frac{1}{${k}}\det B=${delta}`+'.',[
+            'Se transforma una sola columna; el factor aparece una sola vez.',
+            'Despeja el determinante original en la igualdad de la propiedad.',
+            math`\det A=\frac{${k*delta}}{${k}}=${delta}`+'.'
+          ],'',{scalarCheck:{order:1,k,original:delta,newDet:k*delta}})
+      ],
+      7:[
+        choice('d31','Para calcular por linealidad, ¿qué descomposición de una sola fila es válida?',[
+          math`\det A=${determinant(left)}+${determinant(right)}`,
+          math`\det A=${determinant(left)}-${determinant(right)}`,
+          math`\det A=${determinant(left)}\cdot${determinant(right)}`
+        ],'Se separa únicamente la primera fila como suma; las otras dos filas se mantienen idénticas en los dos términos.',['La linealidad en una fila produce una suma de determinantes.','No alteres las demás filas al separar la primera.','Se suman los determinantes, no se multiplican ni se restan.'],'A='+matrix(A)),
+        q('d32','Calcula el determinante anterior mediante esa descomposición por linealidad. Escribe ambos cálculos en tu cuaderno.',null,det(A),
+          math`\det A=${det(left)}+(${det(right)})=${det(A)}`+'.',['Calcula ambos términos de la descomposición.','El segundo término se simplifica por los ceros de su primera fila.','Los términos valen '+math`${det(left)}`+' y '+math`${det(right)}`+'.'],determinant(A),{checkMatrix:A,checkDet:det(A)}),
+        q('d33','Nuevo ejercicio: calcula este determinante por operaciones entre filas. Muestra cada transformación por separado.',null,other3.D,
+          'Anula las entradas bajo el primer pivote y después la entrada bajo el segundo pivote. Las sumas de múltiplos de otra fila conservan el determinante. La matriz triangular final es '+display(matrix(other3.U))+'Su determinante es el producto de la diagonal: '+math`${other3.D}`+'.',[
+            'El primer pivote es uno: crea ceros sin escalar filas.',
+            'Primero aplica '+math`F_2\leftarrow F_2-(${other3.L[1][0]})F_1`+'. Después, en un paso distinto, '+math`F_3\leftarrow F_3-(${other3.L[2][0]})F_1`+'.',
+            'Finalmente aplica '+math`F_3\leftarrow F_3-(${other3.L[2][1]})F_2`+'. El producto de los pivotes es '+math`${other3.D}`+'.'
+          ],determinant(other3.A),{checkMatrix:other3.A,checkDet:other3.D})
+      ],
+      9:[
+        choice('d41','¿Qué operación crea un cero en la segunda posición de la primera fila y conserva el determinante?',[
+          math`C_2\leftarrow C_2-(${family4.A[0][1]})C_1`,math`C_2\leftarrow C_2+(${family4.A[0][1]})C_1`,math`C_1\leftarrow C_1-(${family4.A[0][1]})C_2`,math`C_2\leftarrow(${family4.A[0][1]})C_1`
+        ],'Se resta el múltiplo indicado de una columna distinta; no se reemplaza la columna por un múltiplo de otra. La entrada superior queda en cero.',['La primera entrada de la primera columna es uno.','Conserva la columna de destino al restar el múltiplo.','La suma de un múltiplo de otra columna no cambia el determinante.'],'A='+matrix(family4.A)),
+        q('d42','Calcula el determinante combinando operaciones de columnas y de filas. Explica cada paso.',null,family4.D,
+          'Crea ceros en la primera fila mediante sumas de columnas. En el menor restante, aplica sumas de filas hasta triangularizar. El valor es '+math`${family4.D}`+'.',['Usa la primera columna para anular las otras entradas de la primera fila.','Todas esas sumas de columnas conservan el determinante.','La diagonal de una triangular equivalente es '+math`${family4.U.map((r,i)=>r[i]).join(',')}`+'.'],determinant(family4.A),{checkMatrix:family4.A,checkDet:family4.D}),
+        q('d43','Calcula este otro determinante de orden cuatro mediante operaciones elementales.',null,other4.D,
+          'Una triangular equivalente, obtenida solo con sumas de filas, es '+display(matrix(other4.U))+ 'El producto de la diagonal es '+math`${other4.D}`+'.',['Usa el pivote uno de la primera fila.','Elimina por columnas, mostrando una operación de fila cada vez.','El producto final de los pivotes es '+math`${other4.D}`+'.'],determinant(other4.A),{checkMatrix:other4.A,checkDet:other4.D})
+      ],
+      11:[],12:[]
+    };
+    function cramerQuestions(M,solution,prefix) {
+      const b=rhs(M,solution),variables=['x','y','z','w'].slice(0,M.length),D=det(M),context=system(M,b);
+      const matrices=[M,...variables.map((_,k)=>M.map((row,i)=>row.map((v,j)=>j===k?b[i]:v)))];
+      const items=matrices.map((entries,k)=>{
+        const symbol=k===0?'D':`D_${variables[k-1]}`,answer=det(entries);
+        return q(`${prefix}d${k}`,k===0?`Sistema de ${M.length} incógnitas: construye ${math`D`} y calcula su valor.`:`Construye ${math`${symbol}`} sustituyendo únicamente la columna de ${math`${variables[k-1]}`} y calcula su valor.`,null,answer,
+          math`${symbol}=${answer}`+'. '+(k===0?'Es distinto de cero: existe una única solución.':'Las otras columnas deben conservarse.'),[
+            k===0?'Respeta el orden de ecuaciones y variables.':'La columna sustituida debe coincidir con los términos independientes.',
+            'Calcula el determinante sin perder factores o cambios de signo.',
+            math`${symbol}=${answer}`+'. Revisa tanto las entradas como el cálculo.'
+          ],'',{matrix:entries,context,group:`Sistema de ${M.length} incógnitas`});
+      });
+      items.push(q(`${prefix}sol`,'Determina las incógnitas mediante los cocientes de Cramer.',null,solution,
+        variables.map((v,i)=>math`${v}=\frac{${det(matrices[i+1])}}{${D}}=${solution[i]}`).join('; ')+'. Comprueba la solución en las ecuaciones.',[
+          'Divide cada determinante auxiliar por el principal.',math`D=${D}`+'.',math`${matrix(solution.map(v=>[v]))}`+' es la solución.'
+        ],'',{variables,context,group:`Sistema de ${M.length} incógnitas`,systemMatrix:M,rhs:b}));
+      return items;
+    }
+    quizzes[11]=[...cramerQuestions(family3.A,solution3,'c3'),...cramerQuestions(family4.A,solution4,'c4'),choice('concept','¿Qué condición permite aplicar directamente Cramer?',[
+      math`\det A\ne0`,math`\det A=0`,'Que todos los determinantes auxiliares sean distintos de cero.','Que los coeficientes y los términos independientes sean enteros.'
+    ],'El denominador común debe ser distinto de cero.',['Observa el denominador de los cocientes.','No basta con que los determinantes auxiliares no sean cero.',math`\det A\ne0`+'.'])];
+    const retoK=integer(2,4),retoD=pick([-3,-2,2,3]);
+    quizzes[12]=[
+      q('r1',`Sea ${math`B=${retoK}A`} con matrices de orden cuatro. Si ${math`\det B=${retoD*retoK**4}`}, recupera ${math`\det A`}.`,null,retoD,
+        math`\det A=\frac{1}{${retoK}^4}\det B=${retoD}`+'.',hintsProp,'',{scalarCheck:{order:4,k:retoK,original:retoD,newDet:retoD*retoK**4}}),
+      q('r2','Calcula este determinante de orden cuatro y justifica las operaciones.',null,other4.D,'Las sumas de filas lo reducen a una triangular cuyo producto diagonal es '+math`${other4.D}`+'.',['Crea ceros con el primer pivote uno.','No escales filas si no es necesario.','El producto de la diagonal es '+math`${other4.D}`+'.'],determinant(other4.A),{checkMatrix:other4.A,checkDet:other4.D}),
+      q('r3','Resuelve directamente por Cramer este sistema de tres incógnitas.',null,solution3,
+        'El determinante principal es '+math`${family3.D}`+' y los cocientes dan '+math`${matrix(solution3.map(v=>[v]))}`+'.',['Sustituye una columna por vez.','Calcula los tres determinantes auxiliares antes de dividir.','Divide cada auxiliar por '+math`${family3.D}`+'.'],system(family3.A,rhs(family3.A,solution3)),{variables:['x','y','z'],systemMatrix:family3.A,rhs:rhs(family3.A,solution3)})
+    ];
+    const activities=['Repaso de propiedades','Demostraciones con determinantes','Linealidad y operaciones','Filas y columnas combinadas','Cramer en tres y cuatro incógnitas'];
+    const stages=[{title:'Bienvenida',type:'welcome'},{title:'Conocimientos previos',type:'quiz',minimum:4}];
+    videos.forEach((video,i)=>{stages.push({title:`Video ${i+1}`,type:'video',video,number:i+1});stages.push({title:`Actividad ${i+1} · ${activities[i]}`,heading:activities[i],type:'quiz',minimum:quizzes[3+2*i].length,number:i+1});});
+    stages.push({title:'Reto integrador',type:'quiz',minimum:3},{title:'Práctica final · PDF',type:'pdf'});
+    return {seed,quizzes,stages,escape,math,matrix,determinant};
   }
-  quizzes[11]=[
-    ...cramerQuestions(A3,b3,[16,32,-16,48],[2,-1,3],'c3',system3),
-    ...cramerQuestions(A4,b4,[2,2,4,-2,6],[1,2,-1,3],'c4',system4),
-    q('concept','¿Cuándo puede aplicarse directamente la regla de Cramer a un sistema cuadrado?',[
-      math`D=0`,math`D\ne0`,'Siempre que los coeficientes sean enteros'
-    ],1,'Si '+math`D\ne0`+', la matriz de coeficientes es invertible y existe una única solución.',[
-      'Observa el denominador de cada cociente.',
-      'No se puede dividir por cero.',
-      'Se requiere '+math`D\ne0`+'.'
-    ])
-  ];
-  const activities = [
-    {title:'Repaso de propiedades',minimum:2},
-    {title:'Demostrar con propiedades',minimum:2},
-    {title:'Un cálculo, dos caminos',minimum:3},
-    {title:'Combinar filas y columnas',minimum:2},
-    {title:'Cramer en tres y cuatro incógnitas',minimum:quizzes[11].length}
-  ];
-  const stages=[{title:'Bienvenida',type:'welcome'},{title:'Conocimientos previos',type:'quiz',minimum:3}];
-  videos.forEach((video,i)=>{stages.push({title:`Video ${i+1}`,type:'video',video,number:i+1});stages.push({...activities[i],title:`Actividad ${i+1} · ${activities[i].title}`,heading:activities[i].title,type:'quiz',number:i+1});});
-  stages.push({title:'Reto integrador',type:'quiz',minimum:3},{title:'Actividad final · PDF',type:'pdf'});
-  return {quizzes,stages,escape,math,matrix,determinant};
+  return {createCourse,randomSeed,escape,math,matrix,determinant,det};
 })();

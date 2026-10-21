@@ -1,0 +1,23 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const sandbox={window:{}};vm.createContext(sandbox);vm.runInContext(fs.readFileSync('js/activity.js','utf8'),sandbox);
+const {StudyClock,MINIMUM_MS,eligible}=sandbox.window.DeterminantesActivity;
+let now=0,record={activeMs:0,actions:0},clock=new StudyClock(record,()=>now);
+const active={visible:true,focused:true,eligible:true};
+for(now=1000;now<=10000;now+=1000)clock.tick(active);
+assert.equal(record.activeMs,0,'Idle wall time must never accrue');
+clock.action(active);const start=now;
+for(now=start+1000;now<=start+120000;now+=1000)clock.tick(active);
+assert.equal(record.activeMs,45000,'Activity expires exactly after 45 seconds');
+clock.action(active);now+=1000;clock.tick({...active,visible:false});assert.equal(record.activeMs,45000);
+now+=1000;clock.tick({...active,focused:false});assert.equal(record.activeMs,45000);
+now+=1000;clock.tick({...active,eligible:false});assert.equal(record.activeMs,45000);
+now+=30000;clock.tick(active);assert.equal(record.activeMs,45000,'Suspension does not backfill time');
+clock=new StudyClock(record,()=>now);now+=1000;clock.tick(active);assert.equal(record.activeMs,45000,'Reload does not supply a recent interaction');
+clock.action(active);now+=1000;clock.tick(active);assert.equal(record.activeMs,46000);
+record={activeMs:0,actions:0};now=0;clock=new StudyClock(record,()=>now);
+for(let seconds=0;seconds<3600;seconds++) {if(seconds%30===0)clock.action(active);now+=1000;clock.tick(active);}
+assert.equal(record.activeMs,MINIMUM_MS);
+const state={metrics:record,videos:{a:{confirmed:true},b:{confirmed:true}}};
+const stages=[{type:'video',video:{id:'a'}},{type:'quiz'},{type:'video',video:{id:'b'}}];
+assert(eligible(state,stages));record.activeMs--;assert(!eligible(state,stages));record.activeMs++;state.videos.b.confirmed=false;assert(!eligible(state,stages));
+console.log('PASS: no idle accrual, exact inactivity cutoff, focus/visibility, suspended clocks, reload, 60-minute boundary and required video declarations.');
