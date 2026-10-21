@@ -15,15 +15,15 @@ assert.equal(await page.locator('[data-next="1"]').isDisabled(),true);
 await radio('p3',1);assert.equal(await page.locator('[data-next="1"]').isEnabled(),true);
 await page.locator('[data-next="1"]').click();
 const videoIds=[];
-videoIds.push(await page.locator('iframe').getAttribute('src'));
+videoIds.push(...await page.locator('iframe').evaluateAll(frames=>frames.map(frame=>frame.getAttribute('src'))));
 await page.locator('#video-next').click();
 // First, second and third failures reveal progressively specific support.
 await number('a12',15);assert.match(await page.locator('[data-question=a12] .feedback').innerText(),/cada fila/);
 await number('a12',15);assert.match(await page.locator('[data-question=a12] .feedback').innerText(),/potencia/);
 await number('a12',15);assert.match(await page.locator('[data-question=a12] .feedback').innerText(),/45/);
 await number('a12',45);await radio('a11',0);await number('a13',7);
-await page.locator('[data-next="3"]').click();videoIds.push(await page.locator('iframe').getAttribute('src'));await page.locator('#video-next').click();
-await radio('a21',0);await number('a22',1);await radio('a23',0);await page.locator('[data-next="5"]').click();videoIds.push(await page.locator('iframe').getAttribute('src'));await page.locator('#video-next').click();
+await page.locator('[data-next="3"]').click();videoIds.push(...await page.locator('iframe').evaluateAll(frames=>frames.map(frame=>frame.getAttribute('src'))));await page.locator('#video-next').click();
+await radio('a21',0);await number('a22',1);await radio('a23',0);await page.locator('[data-next="5"]').click();videoIds.push(...await page.locator('iframe').evaluateAll(frames=>frames.map(frame=>frame.getAttribute('src'))));await page.locator('#video-next').click();
 assert.equal(await page.locator('[name=x]').count(),0);assert.equal(await page.locator('[data-question=c2]').count(),0);
 await number('c1',-3,[2,1,1,-1]);await number('c2',-6,[5,1,1,-1]);await number('c3',-3,[2,5,1,1]);await number('c4',2);await number('c5',1);await radio('c6',1);
 await page.locator('[data-next="7"]').click();await number('r1',0);await number('r2',1);
@@ -40,6 +40,6 @@ page.once('dialog',d=>d.accept());await page.locator('#reset').click();assert.eq
 await page.screenshot({path:'/tmp/determinantes-mobile.png',fullPage:true});
 await page.setViewportSize({width:1440,height:1000});await page.screenshot({path:'/tmp/determinantes-desktop.png',fullPage:true});
 assert.equal(await page.locator('.math-error').count(),0);assert.deepEqual(errors,[]);
-console.log('PASS: sequential route, all activities, thresholds, hints, Cramer construction, download, persistence, reset confirmation, mobile overflow, console.');console.log('Video embeds:',videoIds);
+console.log('PASS: sequential route, all activities, thresholds, hints, Cramer construction, download, persistence, reset confirmation, mobile overflow, console.');assert.deepEqual(videoIds, ['14DCgJjfCNkerH56JgdkdBQpZnKKtaTvO','1Eg1h-VmaM8QdprLMkUVFB7wVXCtPoKOy','1NT4MSBQH31zRYQIAB51HOzY6nXxmlzgb','1aLG4Bw7X_9_xvtZ_eqDrDvTEFQLQI6sw','1yKDycHv7-faiBqTNcs6UhuW0rL8onpGF'].map(id=>`https://drive.google.com/file/d/${id}/preview`));console.log('PASS: los cinco videos de Drive están insertados en el orden solicitado.');
 await browser.close();
 })().catch(e=>{console.error(e);process.exit(1)});

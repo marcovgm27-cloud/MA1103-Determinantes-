@@ -10,7 +10,7 @@ Desde la raíz del repositorio:
 python3 -m http.server 8000 --bind 0.0.0.0
 ```
 
-Abre el sitio con un navegador mediante el servidor HTTP. No requiere compilación, backend, claves ni instalación de dependencias para estudiantes. KaTeX 0.16.22 está incluido localmente con su licencia; únicamente los videos requieren conexión con YouTube. No se utiliza seguimiento analítico.
+Abre el sitio con un navegador mediante el servidor HTTP. No requiere compilación, backend, claves ni instalación de dependencias para estudiantes. KaTeX 0.16.22 está incluido localmente con su licencia; únicamente los videos requieren conexión con Google Drive. No se utiliza seguimiento analítico.
 
 ## Estructura
 
@@ -32,7 +32,7 @@ Al modificar significativamente el contenido o las respuestas, cambia `KEY` para
 
 ## Cambiar videos
 
-En la función `render`, el mapa `data` de las etapas 2, 4 y 6 contiene el título, identificador de YouTube y texto de preparación. Sustituye solo el identificador, no una URL completa. Se genera el iframe con título accesible y un enlace alternativo a YouTube. Verifica que el propietario permita la inserción y que el video sea accesible en el país de los estudiantes.
+En la función `render`, el mapa `data` de las etapas 2, 4 y 6 contiene el título, identificador del archivo de Google Drive y texto de preparación. Sustituye solo el identificador, no una URL completa. Los videos 4 y 5 se configuran en el listado que genera las secciones `video-continuation` del mismo bloque de renderizado. Se genera el iframe con título accesible y un enlace alternativo a Google Drive. El iframe utiliza `/file/d/IDENTIFICADOR/preview`. Configura cada archivo como «Cualquier persona con el enlace → Lector» y verifica que permita la reproducción sin iniciar sesión.
 
 ## Desbloqueo y progreso
 
@@ -60,9 +60,9 @@ Con el servidor activo, instala Playwright en un directorio de herramientas fuer
 NODE_PATH=/ruta/a/node_modules node tools/smoke.cjs
 ```
 
-Por defecto utiliza `/usr/bin/chromium`; se puede definir `CHROMIUM_PATH`. La prueba verifica ruta, umbrales, respuestas, pistas progresivas, matrices de Cramer, descarga, persistencia, confirmación del reinicio, ausencia de errores JS y desbordamiento en móvil. Crea capturas en `/tmp`. Comprueba los tres identificadores de video, pero la reproducción externa se debe verificar aparte. Las herramientas de prueba no se publican como dependencias del sitio.
+Por defecto utiliza `/usr/bin/chromium`; se puede definir `CHROMIUM_PATH`. La prueba verifica ruta, umbrales, respuestas, pistas progresivas, matrices de Cramer, descarga, persistencia, confirmación del reinicio, ausencia de errores JS y desbordamiento en móvil. Crea capturas en `/tmp`. Comprueba los cinco identificadores de video, pero la reproducción externa se debe verificar aparte. Las herramientas de prueba no se publican como dependencias del sitio.
 
-Durante la implementación se verificaron los determinantes y soluciones por eliminación exacta con fracciones. La prueba integral pasó en Chromium. La reproducción de YouTube no pudo validarse: el proxy del entorno devolvió 403 a sus dominios.
+Durante la implementación se verificaron los determinantes y soluciones por eliminación exacta con fracciones. La prueba integral pasó en Chromium. Los videos se sustituyeron por cinco archivos de Google Drive en el orden indicado por el docente. Los videos 4 y 5 se muestran como continuación del tercero, antes de la Actividad 3, sin añadir requisitos de avance. La reproducción externa no pudo validarse: el proxy del entorno devolvió 403 al dominio de Drive.
 
 ## Publicar con GitHub Pages
 
