@@ -1,0 +1,97 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,microtype}
+\usepackage[margin=25mm,headheight=16pt]{geometry}
+\usepackage{fancyhdr,enumitem}
+\usepackage[hidelinks,pdfauthor={Marco Vinicio Gutiérrez Montenegro},pdftitle={Determinantes: actividad final de la Semana 12}]{hyperref}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small MA1103 · Cálculo y Álgebra Lineal}
+\fancyhead[R]{\small Semana 12}
+\fancyfoot[L]{\small Escuela de Matemática · TEC}
+\fancyfoot[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{7pt}
+\setlist[enumerate]{leftmargin=*,itemsep=4pt,topsep=4pt}
+\newcommand{\problema}[2]{\section*{Problema #1. #2}}
+\begin{document}
+\begin{center}
+  {\small Instituto Tecnológico de Costa Rica\\Escuela de Matemática}\par
+  \vspace{8pt}
+  {\LARGE\bfseries Determinantes}\par
+  {\large Actividad final · Estudio asincrónico de la Semana 12}\par
+  {\normalsize Marco Vinicio Gutiérrez Montenegro}
+\end{center}
+\vspace{4pt}
+\hrule
+\vspace{7pt}
+\textbf{Entrega:} jueves 22 de octubre de 2026, a más tardar a las
+\textbf{5:00 p.\,m.}, en la plataforma \textbf{TEC Digital} (hora de Costa Rica).
+
+\textbf{Nombre:} \rule{85mm}{0.4pt}\quad\textbf{Grupo:} \rule{20mm}{0.4pt}
+
+\textbf{Indicaciones.} Presenta un desarrollo ordenado y legible. Justifica las propiedades y operaciones utilizadas. Los valores numéricos sin procedimiento no sustituyen la argumentación. Esta práctica no incluye soluciones.
+
+\problema{1}{Demostración mediante propiedades}
+Sean $u,v,w\in\mathbb R^3$ vectores fila y sea
+\[
+ \delta=\det\begin{pmatrix}u\\v\\w\end{pmatrix}.
+\]
+Demuestra que
+\[
+ \det\begin{pmatrix}u+v\\v+w\\w+u\end{pmatrix}=2\delta.
+\]
+Utiliza la linealidad en las filas y la alternancia. Explica por qué ciertos términos se anulan y justifica el signo de los restantes. No desarrolles por cofactores ni reemplaces los vectores por ejemplos numéricos.
+
+\problema{2}{Dos caminos y operaciones combinadas}
+Considera los determinantes
+\[
+ D_1=\begin{vmatrix}2&-1&3\\1&4&-2\\3&2&1\end{vmatrix},
+ \qquad
+ D_2=\begin{vmatrix}2&1&0&-1\\4&3&1&0\\-2&0&2&3\\6&4&2&1\end{vmatrix}.
+\]
+\begin{enumerate}[label=\alph*)]
+ \item Calcula $D_1$ por dos caminos: usando linealidad en una fila o columna, y mediante operaciones elementales. Compara los resultados y explica por qué deben coincidir.
+ \item Calcula $D_2$ combinando al menos una operación entre columnas y operaciones entre filas. Muestra las matrices intermedias, registra cómo cada transformación modifica o conserva el determinante y justifica el valor final.
+\end{enumerate}
+
+\newpage
+\problema{3}{Regla de Cramer: tres y cuatro incógnitas}
+\textbf{Parte A. Sistema de orden tres.} Resuelve mediante la regla de Cramer:
+\[
+ \begin{cases}
+  2x-y+z=8,\\
+  x+3y-2z=-7,\\
+  3x+y+2z=11.
+ \end{cases}
+\]
+Construye la matriz de coeficientes, calcula $D,D_x,D_y,D_z$, determina las tres incógnitas mediante los cocientes de Cramer y verifica la solución en las ecuaciones originales.
+
+\medskip
+\textbf{Parte B. Un contexto de orden cuatro.} La Escuela de Matemática prepara paquetes con cuatro tipos de artículos: cuadernos, lápices, reglas y carpetas. Cada artículo mantiene el mismo precio unitario en todos los paquetes. Se dispone de la siguiente información:
+\begin{center}
+\renewcommand{\arraystretch}{1.35}
+\begin{tabular}{c|rrrr|r}
+ Paquete & Cuadernos & Lápices & Reglas & Carpetas & Costo (colones)\\\hline
+ I   & 1&1&1&1&2000\\
+ II  & 2&1&3&1&3600\\
+ III & 1&2&1&3&3300\\
+ IV  & 3&1&2&2&4500
+\end{tabular}
+\end{center}
+Sean $x,y,z,w$, respectivamente, los precios unitarios en colones de un cuaderno, un lápiz, una regla y una carpeta.
+\begin{enumerate}[label=\alph*)]
+ \item Plantea el sistema de cuatro ecuaciones y construye su matriz de coeficientes, respetando el orden de las variables indicado.
+ \item Calcula el determinante principal $D$ y justifica por qué existe una solución única.
+ \item Construye y calcula $D_x,D_y,D_z,D_w$. Identifica explícitamente la columna sustituida en cada caso.
+ \item Determina $x,y,z,w$ utilizando exclusivamente los cocientes de la regla de Cramer. Muestra los procedimientos de cálculo de los determinantes.
+ \item Interpreta cada incógnita dentro del contexto y verifica que los cuatro costos de los paquetes sean consistentes con tu solución.
+\end{enumerate}
+\vfill
+\hrule
+\smallskip
+{\small\textbf{Recordatorio de entrega:} jueves 22 de octubre de 2026, hasta las 5:00 p.\,m., en TEC Digital.}
+\end{document}

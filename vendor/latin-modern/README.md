@@ -1,0 +1,1 @@
+Latin Modern Roman, distribución oficial incluida con TeX Live. Autores: Bogusław Jackowski y Janusz M. Nowacki. Se incluyen sin modificación las fuentes OpenType regular, negrita y cursiva. Licencia GUST Font License adjunta.
